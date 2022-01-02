@@ -1,11 +1,15 @@
 const { error } = require('./logger')
 
 const dummy = (blogs) => {
-  if (Array.isArray(blogs)) {
-    return 1
-  } else {
-    error('the parameter needs to be an array')
-  }
+  return Array.isArray(blogs) ? 1 : error('the parameter needs to be an array')
 }
 
-module.exports = { dummy }
+const totalLikes = (blogs) => {
+  return Array.isArray(blogs)
+    ? blogs.reduce((sum, item) => {
+        return sum + item.likes
+      }, 0)
+    : error('the parameter needs to be an array')
+}
+
+module.exports = { dummy, totalLikes }
