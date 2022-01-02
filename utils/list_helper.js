@@ -1,56 +1,5 @@
 const { error } = require('./logger')
 
-const blogs = [
-  {
-    _id: '5a422a851b54a676234d17f7',
-    title: 'React patterns',
-    author: 'Michael Chan',
-    url: 'https://reactpatterns.com/',
-    likes: 7,
-    __v: 0,
-  },
-  {
-    _id: '5a422aa71b54a676234d17f8',
-    title: 'Go To Statement Considered Harmful',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-    likes: 5,
-    __v: 0,
-  },
-  {
-    _id: '5a422b3a1b54a676234d17f9',
-    title: 'Canonical string reduction',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-    likes: 12,
-    __v: 0,
-  },
-  {
-    _id: '5a422b891b54a676234d17fa',
-    title: 'First class tests',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-    likes: 10,
-    __v: 0,
-  },
-  {
-    _id: '5a422ba71b54a676234d17fb',
-    title: 'TDD harms architecture',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
-    likes: 0,
-    __v: 0,
-  },
-  {
-    _id: '5a422bc61b54a676234d17fc',
-    title: 'Type wars',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
-    likes: 2,
-    __v: 0,
-  },
-]
-
 const dummy = (blogs) => {
   return Array.isArray(blogs) ? 1 : error('the parameter needs to be an array')
 }
@@ -69,7 +18,6 @@ const favoriteBlog = (blogs) => {
     const blogsToSort = [...blogs]
     const sortedBlogs = blogsToSort.sort((a, b) => a.likes - b.likes)
     const favorite = sortedBlogs.pop()
-    console.log(favorite)
     return {
       title: favorite.title,
       author: favorite.author,
@@ -80,4 +28,68 @@ const favoriteBlog = (blogs) => {
   }
 }
 
-module.exports = { dummy, totalLikes, favoriteBlog }
+const mostBlogs = (blogs) => {
+  if (Array.isArray(blogs) && blogs.length > 1) {
+    const authors = blogs.map((blog) => blog.author)
+    const countAuthors = (allAuthors, searchedAuthor) =>
+      allAuthors.reduce((amount, author) => {
+        return author === searchedAuthor ? amount + 1 : amount
+      }, 0)
+
+    let all = []
+
+    const uniqueAuthors = [...new Set(authors)]
+
+    for (const author of uniqueAuthors) {
+      const amount = countAuthors(authors, author)
+      all.push({
+        author: author,
+        blogs: amount,
+      })
+    }
+
+    const sorted = all.sort((a, b) => a.blogs - b.blogs)
+    return sorted.pop()
+  } else if (blogs.length === 1) {
+    return {
+      author: blogs[0].author,
+      blogs: 1,
+    }
+  } else {
+    error('the parameter needs to be an array with one or more blogs')
+  }
+}
+
+const mostLikes = (blogs) => {
+  if (Array.isArray(blogs) && blogs.length > 1) {
+    const authors = blogs.map((blog) => blog.author)
+    let all = []
+
+    const countLikes = (allBlogs, searchedAuthor) =>
+      allBlogs.reduce((likes, blog) => {
+        return blog.author === searchedAuthor ? likes + blog.likes : likes
+      }, 0)
+
+    const uniqueAuthors = [...new Set(authors)]
+
+    for (const author of uniqueAuthors) {
+      const likes = countLikes(blogs, author)
+      all.push({
+        author: author,
+        likes: likes,
+      })
+    }
+
+    const sorted = all.sort((a, b) => a.likes - b.likes)
+    return sorted.pop()
+  } else if (blogs.length === 1) {
+    return {
+      author: blogs[0].author,
+      likes: blogs[0].likes,
+    }
+  } else {
+    error('the parameter needs to be an array with one or more blogs')
+  }
+}
+
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes }
