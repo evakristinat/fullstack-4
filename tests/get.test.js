@@ -32,6 +32,26 @@ test('id is displayed in correct form', async () => {
   })
 })
 
+test('posting a new blog is possible', async () => {
+  const newBlog = {
+    title: 'Testing',
+    author: 'The tester herself',
+    url: 'https://en.wikipedia.org/wiki/Software_testing',
+    likes: 150,
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  const blogsAfter = await helper.blogsInDb()
+  expect(blogsAfter).toHaveLength(helper.initialBlogs.length + 1)
+
+  const titles = blogsAfter.map((blog) => blog.title)
+  expect(titles).toContainEqual('Testing')
+})
+
+
 afterAll(() => {
   mongoose.connection.close()
 })
