@@ -51,6 +51,16 @@ test('posting a new blog is possible', async () => {
   expect(titles).toContainEqual('Testing')
 })
 
+test('likes are zero if not otherwise determined', async () => {
+  const newBlog = {
+    title: 'Testing',
+    author: 'The tester herself',
+    url: 'https://en.wikipedia.org/wiki/Software_testing',
+  }
+
+  const response = await api.post('/api/blogs').send(newBlog)
+  expect(response.body.likes).toBe(0)
+})
 
 afterAll(() => {
   mongoose.connection.close()
