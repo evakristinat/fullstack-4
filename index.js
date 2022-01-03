@@ -1,13 +1,10 @@
 const http = require('http')
-const express = require('express')
 const app = require('./app')
-const cors = require('cors')
-const mongoose = require('mongoose')
-const { info, error } = require('./utils/logger')
-const { MONGO_URI, PORT } = require('./utils/config')
+const { PORT, MONGO_URI} = require('./utils/config')
+const logger = require('./utils/logger')
 
-// const server = http.createServer(app)
+const server = http.createServer(app)
 
-app.listen(PORT, () => {
-  info(`Server running on port ${PORT}`)
+server.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`)
 })
