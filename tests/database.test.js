@@ -12,63 +12,83 @@ beforeEach(async () => {
   await Blog.insertMany(helper.initialBlogs)
 })
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+describe('with get', () => {
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
 
-test('all blogs are returned', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(helper.initialBlogs.length)
-})
+  test('all blogs are returned', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
+  })
 
-test('id is displayed in correct form', async () => {
-  const response = await api.get('/api/blogs')
-  response.body.forEach((blog) => {
-    expect(blog.id).toBeDefined()
+  test('id is displayed in correct form', async () => {
+    const response = await api.get('/api/blogs')
+    response.body.forEach((blog) => {
+      expect(blog.id).toBeDefined()
+    })
   })
 })
 
-test('posting a new blog is possible', async () => {
-  const newBlog = {
-    title: 'Testing',
-    author: 'The tester herself',
-    url: 'https://en.wikipedia.org/wiki/Software_testing',
-    likes: 150,
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-  const blogsAfter = await helper.blogsInDb()
-  expect(blogsAfter).toHaveLength(helper.initialBlogs.length + 1)
+describe('with post', () => {
+  test('posting a new blog is possible', async () => {
+    const newBlog = {
+      title: 'Testing',
+      author: 'The tester herself',
+      url: 'https://en.wikipedia.org/wiki/Software_testing',
+      likes: 150,
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    const blogsAfter = await helper.blogsInDb()
+    expect(blogsAfter).toHaveLength(helper.initialBlogs.length + 1)
 
-  const titles = blogsAfter.map((blog) => blog.title)
-  expect(titles).toContainEqual('Testing')
+    const titles = blogsAfter.map((blog) => blog.title)
+    expect(titles).toContainEqual('Testing')
+  })
+
+  test('new blog must have title and url', async () => {
+    const newBlog = {
+      title: '',
+      author: 'The tester herself',
+      url: '',
+      likes: 150,
+    }
+    await api.post('/api/blogs').send(newBlog).expect(400)
+  })
+
+  test('likes are zero if not otherwise determined', async () => {
+    const newBlog = {
+      title: 'Testing',
+      author: 'The tester herself',
+      url: 'https://en.wikipedia.org/wiki/Software_testing',
+    }
+
+    const response = await api.post('/api/blogs').send(newBlog)
+    expect(response.body.likes).toBe(0)
+  })
 })
 
-test('new blog must have title and url', async () => {
-  const newBlog = {
-    title: '',
-    author: 'The tester herself',
-    url: '',
-    likes: 150,
-  }
-   await api.post('/api/blogs').send(newBlog).expect(400)
-})
+describe('with delete', () => {
+  test('a blog can be deleted', async () => {
+    const blogs = await helper.blogsInDb()
+    const blogToDelete = blogs[0]
 
-test('likes are zero if not otherwise determined', async () => {
-  const newBlog = {
-    title: 'Testing',
-    author: 'The tester herself',
-    url: 'https://en.wikipedia.org/wiki/Software_testing',
-  }
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
 
-  const response = await api.post('/api/blogs').send(newBlog)
-  expect(response.body.likes).toBe(0)
+    const blogsAfter = await helper.blogsInDb()
+
+    expect(blogsAfter).toHaveLength(helper.initialBlogs.length - 1)
+
+    const blogTitles = blogsAfter.map((blog) => blog.title)
+    expect(blogTitles).not.toContainEqual(blogToDelete.title)
+  })
 })
 
 afterAll(() => {
