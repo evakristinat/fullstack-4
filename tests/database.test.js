@@ -27,7 +27,6 @@ test('all blogs are returned', async () => {
 test('id is displayed in correct form', async () => {
   const response = await api.get('/api/blogs')
   response.body.forEach((blog) => {
-    console.log(blog.id)
     expect(blog.id).toBeDefined()
   })
 })
@@ -49,6 +48,16 @@ test('posting a new blog is possible', async () => {
 
   const titles = blogsAfter.map((blog) => blog.title)
   expect(titles).toContainEqual('Testing')
+})
+
+test('new blog must have title and url', async () => {
+  const newBlog = {
+    title: '',
+    author: 'The tester herself',
+    url: '',
+    likes: 150,
+  }
+   await api.post('/api/blogs').send(newBlog).expect(400)
 })
 
 test('likes are zero if not otherwise determined', async () => {
