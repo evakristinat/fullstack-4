@@ -91,6 +91,29 @@ describe('with delete', () => {
   })
 })
 
+describe('with put', () => {
+  test('a blog can be updated', async () => {
+    const blogs = await helper.blogsInDb()
+    const blogToUpdate = blogs[0]
+    const newBlog = {
+      title: 'Testing',
+      author: 'The tester herself',
+      url: 'https://en.wikipedia.org/wiki/Software_testing',
+      likes: 150,
+    }
+
+    const response = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(newBlog)
+      .expect(200)
+
+    expect(response.body.title).toEqual('Testing')
+
+    const blogsAfter = await helper.blogsInDb()
+    expect(blogsAfter[0].likes).toEqual(newBlog.likes)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
