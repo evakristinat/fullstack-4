@@ -3,8 +3,6 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-
-
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   response.status(200).json(blogs.map((blog) => blog.toJSON()))
@@ -51,7 +49,18 @@ blogRouter.patch('/:id', async (request, response) => {
   response.status(200).json(addedBlog.toJSON())
 })
 
+//Mikäli poistaja ei ole sama kuin lisääjä, poistaminen ei onnistu.
 blogRouter.delete('/:id', async (request, response) => {
+  const blogToDelete = await Blog.findById(request.params.id)
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  if (!request.token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+    //tämänhetkistä käyttäjää, joka saadaan tokenin IDstä, verrataan poistettavan blogin luojaan
+  } else if (decodedToken.id !== blogToDelete.user.toString()) {
+    return response.status(401).json({ error: 'unauthorized user' })
+  }
+
   await Blog.findByIdAndRemove(request.params.id)
   response.status(204).end()
 })
