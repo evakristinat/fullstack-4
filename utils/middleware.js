@@ -16,12 +16,14 @@ const errorHandler = (error, req, res, next) => {
     // tai Mongoosen validator heittää virheen
   } else if (error.name === 'MongoServerError') {
     return res.status(400).send({ error: error.message })
+  } else if (error.name === 'TypeError') {
+    return res.status(400).send({ error: error.message })
   }
 
   next(error)
 }
 
-module.exports={
+module.exports = {
   unknownEndpoint,
-  errorHandler
+  errorHandler,
 }
