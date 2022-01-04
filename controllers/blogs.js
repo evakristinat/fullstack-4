@@ -35,15 +35,16 @@ blogRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog.toJSON())
 })
 
-blogRouter.put('/:id', async (request, response) => {
+blogRouter.patch('/:id', async (request, response) => {
   const body = request.body
-  const blog = {
-    title: body.title,
-    author: body.author,
-    url: body.url,
+  const blog = await Blog.findById(request.params.id)
+  const newBlog = {
+    title: blog.title,
+    author: blog.author,
+    url: blog.url,
     likes: body.likes,
   }
-  const addedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+  const addedBlog = await Blog.findByIdAndUpdate(request.params.id, newBlog, {
     new: true,
   })
 

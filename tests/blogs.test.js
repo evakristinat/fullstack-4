@@ -92,20 +92,17 @@ describe('with delete', () => {
   })
 })
 
-describe('with put', () => {
-  test('a blog can be updated', async () => {
+describe('with patch', () => {
+  test('a blogs likes can be updated', async () => {
     const blogs = await helper.blogsInDb()
     const blogToUpdate = blogs[0]
-    const newBlog = {
-      title: 'Testing',
-      author: 'The tester herself',
-      url: 'https://en.wikipedia.org/wiki/Software_testing',
+    const newLikes = {
       likes: 150,
     }
 
     const response = await api
-      .put(`/api/blogs/${blogToUpdate.id}`)
-      .send(newBlog)
+      .patch(`/api/blogs/${blogToUpdate.id}`)
+      .send(newLikes)
       .expect(200)
 
     expect(response.body.title).toEqual('Testing')
