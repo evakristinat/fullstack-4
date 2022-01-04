@@ -1,11 +1,12 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const helper = require('./test_helper')
+const Blog = require('../models/blog')
 const app = require('../app')
 
 //superagent-olio, joka mahdollistaa pyynnöt backendiin
 const api = supertest(app)
-const Blog = require('../models/blog')
+
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -113,6 +114,8 @@ describe('with put', () => {
     expect(blogsAfter[0].likes).toEqual(newBlog.likes)
   })
 })
+
+
 
 afterAll(() => {
   mongoose.connection.close()
