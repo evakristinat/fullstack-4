@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema({
     minlength: [3, 'name must have 3 letters or more'],
     maxlength: [30, 'name should have 30 or less letters'],
     },
-  password: {
+  passwordHash: {
     type: String,
   },
   blogs: [
