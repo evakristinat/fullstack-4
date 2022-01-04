@@ -1,7 +1,7 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const jwt = require('jsonwebtoken')
+
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
@@ -11,11 +11,11 @@ blogRouter.get('/', async (request, response) => {
 blogRouter.post('/', async (request, response) => {
   const body = request.body
   //tokenin purkaminen palauttaa käyttäjän nimen ja id:n
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!request.token || !decodedToken.id) {
+
+  if (!request.token || !request.user) {
     return response.status(401).json({ error: 'token missing or invalid' })
   }
-  const user = await User.findById(decodedToken.id)
+  const user = await User.findById(request.user)
 
   const blog = new Blog({
     title: body.title,
@@ -52,12 +52,11 @@ blogRouter.patch('/:id', async (request, response) => {
 //Mikäli poistaja ei ole sama kuin lisääjä, poistaminen ei onnistu.
 blogRouter.delete('/:id', async (request, response) => {
   const blogToDelete = await Blog.findById(request.params.id)
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-  if (!request.token || !decodedToken.id) {
+  if (!request.token || !request.user) {
     return response.status(401).json({ error: 'token missing or invalid' })
     //tämänhetkistä käyttäjää, joka saadaan tokenin IDstä, verrataan poistettavan blogin luojaan
-  } else if (decodedToken.id !== blogToDelete.user.toString()) {
+  } else if (request.user !== blogToDelete.user.toString()) {
     return response.status(401).json({ error: 'unauthorized user' })
   }
 
