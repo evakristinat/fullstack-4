@@ -1,3 +1,3 @@
 ﻿# fullstack-4
 
-Bloglist fullstack building, testing and a token-based login.
+Bloglist app project with fullstack building, testing and a token-based login.
